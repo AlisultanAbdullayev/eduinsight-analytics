@@ -1,6 +1,7 @@
 package com.eduinsight.ui;
 
 import com.eduinsight.repository.*;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;

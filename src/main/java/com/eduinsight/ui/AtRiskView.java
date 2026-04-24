@@ -5,6 +5,7 @@ import com.eduinsight.service.AtRiskAnalysisService;
 import com.eduinsight.service.AtRiskAnalysisService.RiskLevel;
 import com.eduinsight.service.AtRiskAnalysisService.StudentRiskProfile;
 import com.eduinsight.service.StudentService;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.*;

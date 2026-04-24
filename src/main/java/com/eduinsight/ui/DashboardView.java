@@ -3,6 +3,7 @@ package com.eduinsight.ui;
 import com.eduinsight.service.AtRiskAnalysisService.RiskLevel;
 import com.eduinsight.service.DashboardStatsService;
 import com.eduinsight.service.DashboardStatsService.DashboardSummary;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
