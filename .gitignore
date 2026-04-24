@@ -10,10 +10,12 @@ build/
 .vscode/
 *.class
 
-# Vaadin
+# Vaadin generated
 node_modules/
 package-lock.json
 pnpm-lock.yaml
+src/main/frontend/generated/
+src/main/frontend/index.html
 
 # OS
 .DS_Store
