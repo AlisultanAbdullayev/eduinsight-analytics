@@ -40,7 +40,7 @@ public class AdminBurdenView extends VerticalLayout {
     }
 
     private Component pageHeader() {
-        var title = new H2("Administrative Burden Reduction");
+        var title = UiUtils.pageTitle("Administrative Burden Reduction");
         var subtitle = new Paragraph(
                 "Quantifying the time EduInsight returns to teachers by eliminating manual data reconciliation across " +
                 "Schoology, Skyward, CodeHS, and GMETRIX. Source: Harmony district instructional audit."
@@ -76,7 +76,7 @@ public class AdminBurdenView extends VerticalLayout {
     }
 
     private Component buildComparisonSection() {
-        var heading = new H3("Planning Period: Before vs. After EduInsight");
+        var heading = UiUtils.sectionTitle("Planning Period: Before vs. After EduInsight");
 
         var row = new HorizontalLayout();
         row.setWidthFull();
@@ -141,7 +141,7 @@ public class AdminBurdenView extends VerticalLayout {
 
     private Component buildSavingsProjection(double weeklyPerTeacher, double semesterPerTeacher,
                                               double districtWeekly, double districtSemesterHours) {
-        var heading = new H3("Savings Projection (3 Campuses · " + TOTAL_TEACHERS + " Teachers)");
+        var heading = UiUtils.sectionTitle("Savings Projection (3 Campuses · " + TOTAL_TEACHERS + " Teachers)");
 
         var row = new HorizontalLayout();
         row.setWidthFull();
@@ -178,7 +178,7 @@ public class AdminBurdenView extends VerticalLayout {
     private Component buildInstructionImpact(double districtSemesterHours) {
         var section = new VerticalLayout();
         section.setPadding(false);
-        section.add(new H3("What Those Hours Mean for Students"));
+        section.add(UiUtils.sectionTitle("What Those Hours Mean for Students"));
 
         var row = new HorizontalLayout();
         row.setWidthFull();

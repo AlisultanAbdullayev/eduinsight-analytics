@@ -29,7 +29,7 @@ public class DataSourcesView extends VerticalLayout {
     }
 
     private Component pageHeader() {
-        var title = new H2("Connected Data Sources");
+        var title = UiUtils.pageTitle("Connected Data Sources");
         var subtitle = new Paragraph(
                 "EduInsight acts as the FERPA-compliant interoperability layer. No data is stored permanently — " +
                 "all records are ingested via REST APIs from existing district systems, processed, and surfaced to teachers in real time."
@@ -103,7 +103,7 @@ public class DataSourcesView extends VerticalLayout {
     private Component buildArchitectureSection() {
         var section = new VerticalLayout();
         section.setPadding(false);
-        section.add(new H3("System Architecture"));
+        section.add(UiUtils.sectionTitle("System Architecture"));
 
         var diagram = new Div();
         diagram.getStyle()
@@ -137,7 +137,7 @@ public class DataSourcesView extends VerticalLayout {
     private Component buildStatusTable() {
         var section = new VerticalLayout();
         section.setPadding(false);
-        section.add(new H3("Integration Status — Harmony Pilot"));
+        section.add(UiUtils.sectionTitle("Integration Status — Harmony Pilot"));
 
         String[][] rows = {
                 {"Schoology", "REST API v3", "OAuth 2.0", "Active", "Grades, Assignments, Courses"},

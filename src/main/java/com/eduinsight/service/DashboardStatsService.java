@@ -6,6 +6,7 @@ import com.eduinsight.service.AtRiskAnalysisService.RiskLevel;
 import com.eduinsight.service.AtRiskAnalysisService.StudentRiskProfile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class DashboardStatsService {
 

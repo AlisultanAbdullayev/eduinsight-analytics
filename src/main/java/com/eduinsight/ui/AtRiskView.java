@@ -41,7 +41,7 @@ public class AtRiskView extends VerticalLayout {
     }
 
     private Component pageHeader() {
-        var title = new H2("At-Risk Student Identification");
+        var title = UiUtils.pageTitle("At-Risk Student Identification");
         var subtitle = new Paragraph("Unified early-warning signals from Schoology (grades), Skyward (attendance), and CodeHS/GMETRIX (coding). Replaces 42+ min manual reconciliation.");
         subtitle.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.Margin.Top.NONE);
         var header = new VerticalLayout(title, subtitle);

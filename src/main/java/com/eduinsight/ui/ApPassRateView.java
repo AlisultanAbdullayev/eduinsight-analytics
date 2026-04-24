@@ -31,7 +31,7 @@ public class ApPassRateView extends VerticalLayout {
     }
 
     private Component pageHeader() {
-        var title = new H2("AP Exam Pass Rate Tracker");
+        var title = UiUtils.pageTitle("AP Exam Pass Rate Tracker");
         var subtitle = new Paragraph("Pass threshold: score ≥ 3. Data sourced from district AP Assessment Portal. Exam year: 2025.");
         subtitle.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.Margin.Top.NONE);
         var header = new VerticalLayout(title, subtitle);
@@ -74,7 +74,7 @@ public class ApPassRateView extends VerticalLayout {
     }
 
     private Component buildRateGrid(List<ApPassRateStats> stats) {
-        var heading = new H3("Detailed Pass Rate Table");
+        var heading = UiUtils.sectionTitle("Detailed Pass Rate Table");
         Grid<ApPassRateStats> grid = new Grid<>();
         grid.setWidthFull();
         grid.setAllRowsVisible(true);
@@ -116,7 +116,7 @@ public class ApPassRateView extends VerticalLayout {
     }
 
     private Component buildCampusBreakdown(List<ApPassRateStats> stats) {
-        var heading = new H3("Pass Rate by Campus");
+        var heading = UiUtils.sectionTitle("Pass Rate by Campus");
         var grid = new Grid<CampusRow>();
         grid.setWidthFull();
         grid.setAllRowsVisible(true);

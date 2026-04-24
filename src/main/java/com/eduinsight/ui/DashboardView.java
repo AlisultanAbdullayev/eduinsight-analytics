@@ -30,8 +30,7 @@ public class DashboardView extends VerticalLayout {
     }
 
     private Component pageHeader() {
-        var title = new H2("District Overview");
-        title.addClassNames(LumoUtility.Margin.Bottom.XSMALL);
+        var title = UiUtils.pageTitle("District Overview");
         var subtitle = new Paragraph("Real-time unified view across Schoology, Skyward, CodeHS, and GMETRIX — Harmony Public Schools Pilot 2026–27");
         subtitle.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.Margin.Top.NONE);
         var header = new VerticalLayout(title, subtitle);
@@ -82,7 +81,7 @@ public class DashboardView extends VerticalLayout {
         var section = new VerticalLayout();
         section.setPadding(false);
 
-        var heading = new H3("Student Risk Distribution");
+        var heading = UiUtils.sectionTitle("Student Risk Distribution");
         heading.addClassNames(LumoUtility.Margin.Bottom.SMALL);
 
         var row = new HorizontalLayout();
@@ -106,7 +105,7 @@ public class DashboardView extends VerticalLayout {
         s.atRiskByCampus().forEach((campus, count) ->
                 campusRow.add(campusAtRiskBadge(campus, count)));
 
-        section.add(heading, row, new H4("At-Risk by Campus"), campusRow);
+        section.add(heading, row, UiUtils.subTitle("At-Risk by Campus"), campusRow);
         return section;
     }
 
@@ -153,7 +152,7 @@ public class DashboardView extends VerticalLayout {
     private Component buildPlatformIngestionBar(DashboardSummary s) {
         var section = new VerticalLayout();
         section.setPadding(false);
-        section.add(new H3("Platform Data Ingested (This Semester)"));
+        section.add(UiUtils.sectionTitle("Platform Data Ingested (This Semester)"));
 
         String[][] platforms = {
                 {"Schoology (Grades)", String.valueOf(s.totalGradeRecords()), "#1565c0"},
