@@ -2,6 +2,8 @@
 
 FERPA-compliant student data middleware that unifies Schoology, Skyward, CodeHS, and GMETRIX into a single teacher dashboard. Built for the Harmony Public Schools 2026–27 pilot.
 
+Project overview with screenshots: `PROJECT.md`
+
 ## Stack
 
 | Layer | Technology |
