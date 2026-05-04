@@ -2,8 +2,6 @@
 
 FERPA-compliant student data middleware that unifies Schoology, Skyward, CodeHS, and GMETRIX into a single teacher dashboard. Built for the Harmony Public Schools 2026–27 pilot.
 
-Project overview with screenshots: `PROJECT.md`
-
 ## Stack
 
 | Layer | Technology |
@@ -19,9 +17,10 @@ Project overview with screenshots: `PROJECT.md`
 ./gradlew bootRun
 ```
 
-Then open: **http://localhost:8080**
+Then open: **<http://localhost:8080>**
 
-H2 Console (inspect seeded data): **http://localhost:8080/h2-console**
+H2 Console (inspect seeded data): **<http://localhost:8080/h2-console>**
+
 - JDBC URL: `jdbc:h2:mem:eduinsight`
 - Username: `sa` / Password: *(empty)*
 
@@ -34,6 +33,36 @@ H2 Console (inspect seeded data): **http://localhost:8080/h2-console**
 | AP Pass Rates | `/ap-rates` | Exam pass rates per course and campus |
 | Data Sources | `/data-sources` | Platform integration cards, architecture diagram, status table |
 | Admin Burden | `/admin-burden` | Time-saved metrics: 42 min → 3 min per planning period |
+
+## Screenshots
+
+### District Dashboard
+
+![District Dashboard](docs/screenshots/dashboard.png)
+
+### At-Risk Student Identification
+
+![At-Risk Students](docs/screenshots/at-risk-students.png)
+
+### AP Exam Pass Rate Tracker
+
+![AP Pass Rates](docs/screenshots/ap-pass-rates.png)
+
+### Connected Data Sources
+
+![Data Sources Overview](docs/screenshots/data-sources-overview.png)
+
+### Data Integration Status Table
+
+![Data Sources Integration Table](docs/screenshots/data-sources-integration-table.png)
+
+### Administrative Burden Reduction
+
+![Administrative Burden Hero](docs/screenshots/admin-burden-hero.png)
+
+### Savings Projection and Outcomes
+
+![Administrative Burden Savings](docs/screenshots/admin-burden-savings.png)
 
 ## Demo Data
 
