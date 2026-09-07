@@ -8,6 +8,7 @@ import com.eduinsight.service.StudentService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -31,11 +32,12 @@ public class AtRiskView extends VerticalLayout {
         this.studentService = studentService;
         this.riskService = riskService;
         addClassNames(LumoUtility.Padding.LARGE);
-        setWidthFull();
+        setSizeFull();
 
         add(pageHeader());
         add(buildToolbar());
         add(buildGrid());
+        expand(grid);
 
         loadData(null);
     }
@@ -69,8 +71,8 @@ public class AtRiskView extends VerticalLayout {
     }
 
     private Grid<StudentRiskProfile> buildGrid() {
-        grid.setWidthFull();
-        grid.setHeight("500px");
+        grid.setSizeFull();
+        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 
         grid.addColumn(p -> p.student().getFullName())
                 .setHeader("Student Name").setSortable(true).setAutoWidth(true);
@@ -136,7 +138,7 @@ public class AtRiskView extends VerticalLayout {
 
     private Component buildDetailPanel(StudentRiskProfile p) {
         var panel = new Div();
-        panel.getStyle().set("padding", "16px 24px").set("background", "#f9f9f9");
+        panel.getStyle().set("padding", "16px 24px").set("background", "var(--lumo-contrast-5pct)");
 
         var title = new H4(p.student().getFullName() + " — Data Source Breakdown");
         title.getStyle().set("margin-top", "0");
@@ -154,7 +156,7 @@ public class AtRiskView extends VerticalLayout {
         var note = new Paragraph("Student ID: " + p.student().getStudentId() +
                 " | Email: " + p.student().getEmail() +
                 " | Campus: " + p.student().getCampus());
-        note.getStyle().set("font-size", "12px").set("color", "#888").set("margin-bottom", "0");
+        note.getStyle().set("font-size", "12px").set("color", "var(--lumo-tertiary-text-color)").set("margin-bottom", "0");
 
         panel.add(title, row, note);
         return panel;
@@ -163,14 +165,15 @@ public class AtRiskView extends VerticalLayout {
     private Div sourceCard(String source, String value, String status, boolean flagged) {
         var card = new Div();
         card.getStyle()
-                .set("background", "white")
+                .set("background", "var(--lumo-base-color)")
+                .set("border", "1px solid var(--lumo-contrast-10pct)")
                 .set("border-left", "4px solid " + (flagged ? "#c62828" : "#2e7d32"))
                 .set("border-radius", "6px")
                 .set("padding", "12px 16px")
                 .set("margin-right", "12px")
                 .set("min-width", "180px");
         var src = new Span(source);
-        src.getStyle().set("font-size", "12px").set("color", "#666").set("display", "block");
+        src.getStyle().set("font-size", "12px").set("color", "var(--lumo-secondary-text-color)").set("display", "block");
         var val = new H4(value);
         val.getStyle().set("margin", "4px 0").set("color", flagged ? "#c62828" : "#2e7d32");
         var st = new Span(flagged ? "⚠ " + status : "✓ " + status);

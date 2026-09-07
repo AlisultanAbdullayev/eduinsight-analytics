@@ -4,6 +4,7 @@ import com.eduinsight.service.DashboardStatsService;
 import com.eduinsight.service.DashboardStatsService.ApPassRateStats;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -54,20 +55,21 @@ public class ApPassRateView extends VerticalLayout {
         String color = s.passRate() >= 60 ? "#2e7d32" : s.passRate() >= 40 ? "#e65100" : "#c62828";
         var card = new Div();
         card.getStyle()
-                .set("background", "white")
+                .set("background", "var(--lumo-base-color)")
+                .set("border", "1px solid var(--lumo-contrast-10pct)")
                 .set("border-top", "4px solid " + color)
-                .set("border-radius", "8px")
+                .set("border-radius", "var(--lumo-border-radius-l)")
                 .set("padding", "16px 20px")
-                .set("box-shadow", "0 2px 8px rgba(0,0,0,0.07)")
+                .set("box-shadow", "var(--lumo-box-shadow-xs)")
                 .set("flex", "1")
                 .set("min-width", "160px");
 
         var name = new Span(s.examName());
-        name.getStyle().set("font-size", "12px").set("color", "#666").set("display", "block").set("text-transform", "uppercase");
+        name.getStyle().set("font-size", "12px").set("color", "var(--lumo-secondary-text-color)").set("display", "block").set("text-transform", "uppercase");
         var rate = new H3(String.format("%.1f%%", s.passRate()));
         rate.getStyle().set("margin", "6px 0 4px").set("color", color);
         var detail = new Span(s.passCount() + "/" + s.totalTakers() + " students passed");
-        detail.getStyle().set("font-size", "12px").set("color", "#888");
+        detail.getStyle().set("font-size", "12px").set("color", "var(--lumo-tertiary-text-color)");
 
         card.add(name, rate, detail);
         return card;
@@ -78,6 +80,7 @@ public class ApPassRateView extends VerticalLayout {
         Grid<ApPassRateStats> grid = new Grid<>();
         grid.setWidthFull();
         grid.setAllRowsVisible(true);
+        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 
         grid.addColumn(ApPassRateStats::examName).setHeader("AP Exam").setAutoWidth(true);
         grid.addColumn(s -> s.totalTakers()).setHeader("Total Students").setWidth("150px");
@@ -100,7 +103,7 @@ public class ApPassRateView extends VerticalLayout {
         container.getStyle().set("display", "flex").set("align-items", "center").set("gap", "8px");
 
         var track = new Div();
-        track.getStyle().set("background", "#f0f0f0").set("border-radius", "4px")
+        track.getStyle().set("background", "var(--lumo-contrast-10pct)").set("border-radius", "4px")
                 .set("height", "14px").set("width", "200px").set("overflow", "hidden");
 
         var fill = new Div();
@@ -120,6 +123,7 @@ public class ApPassRateView extends VerticalLayout {
         var grid = new Grid<CampusRow>();
         grid.setWidthFull();
         grid.setAllRowsVisible(true);
+        grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 
         grid.addColumn(r -> r.campus()).setHeader("Campus").setAutoWidth(true);
         for (ApPassRateStats s : stats) {

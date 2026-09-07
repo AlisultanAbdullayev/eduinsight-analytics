@@ -1,0 +1,21 @@
+html {
+  color-scheme: light dark;
+}
+
+html,
+html[theme~="dark"] {
+  /* A calmer, more contemporary blue than stock Lumo, kept identical in both
+     palettes since Lumo derives the rest of the primary shades from these. */
+  --lumo-primary-color-rgb: 25, 92, 179;
+  --lumo-primary-color: hsl(213, 76%, 45%);
+  --lumo-primary-text-color: hsl(213, 76%, 45%);
+
+  --lumo-border-radius-m: 10px;
+  --lumo-border-radius-l: 14px;
+
+  --eduinsight-shadow-card: var(--lumo-box-shadow-s);
+}
+
+body {
+  transition: background-color 160ms ease-in-out, color 160ms ease-in-out;
+}

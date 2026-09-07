@@ -11,10 +11,10 @@ class UiUtils {
         h.getStyle()
                 .set("margin", "0 0 6px 0")
                 .set("padding-left", "14px")
-                .set("border-left", "4px solid #1565c0")
+                .set("border-left", "4px solid var(--lumo-primary-color)")
                 .set("text-decoration", "none")
                 .set("font-size", "22px")
-                .set("color", "#1a1a2e");
+                .set("color", "var(--lumo-header-text-color)");
         return h;
     }
 
@@ -23,10 +23,10 @@ class UiUtils {
         h.getStyle()
                 .set("margin", "24px 0 12px 0")
                 .set("padding-bottom", "6px")
-                .set("border-bottom", "2px solid #e3eaf5")
+                .set("border-bottom", "2px solid var(--lumo-contrast-10pct)")
                 .set("text-decoration", "none")
                 .set("font-size", "16px")
-                .set("color", "#1a1a2e")
+                .set("color", "var(--lumo-header-text-color)")
                 .set("letter-spacing", "0.2px");
         return h;
     }
@@ -37,7 +37,7 @@ class UiUtils {
                 .set("margin", "16px 0 8px 0")
                 .set("text-decoration", "none")
                 .set("font-size", "14px")
-                .set("color", "#444")
+                .set("color", "var(--lumo-body-text-color)")
                 .set("font-weight", "600");
         return h;
     }
