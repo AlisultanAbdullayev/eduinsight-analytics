@@ -1,5 +1,6 @@
 package com.eduinsight.ui;
 
+import com.eduinsight.auth.SchoolAccount;
 import com.eduinsight.service.AtRiskAnalysisService.RiskLevel;
 import com.eduinsight.service.DashboardStatsService;
 import com.eduinsight.service.DashboardStatsService.DashboardSummary;
@@ -30,8 +31,12 @@ public class DashboardView extends VerticalLayout {
     }
 
     private Component pageHeader() {
+        SchoolAccount account = SchoolAccount.current();
+        String pilotName = account != null ? account.district() : "EduInsight";
+
         var title = UiUtils.pageTitle("District Overview");
-        var subtitle = new Paragraph("Real-time unified view across Schoology, Skyward, CodeHS, and GMETRIX — Harmony Public Schools Pilot 2026–27");
+        var subtitle = new Paragraph(
+                "Real-time unified view across Schoology, Skyward, CodeHS, and GMETRIX — " + pilotName + " Pilot 2026–27");
         subtitle.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.Margin.Top.NONE);
         var header = new VerticalLayout(title, subtitle);
         header.setPadding(false);
@@ -44,36 +49,49 @@ public class DashboardView extends VerticalLayout {
         row.setWidthFull();
         row.setSpacing(true);
         row.add(
-                statCard("Total Students", String.valueOf(s.totalStudents()), "3 Harmony Campuses", "#1565c0"),
+                statCard("Total Students", String.valueOf(s.totalStudents()), "3 Harmony Campuses", "#1565c0",
+                        "▲ 3.4% vs last semester", true),
                 statCard("At-Risk Students", String.valueOf(s.atRiskCount()),
-                        Math.round((s.atRiskCount() * 100.0) / s.totalStudents()) + "% of enrollment", "#b71c1c"),
-                statCard("AP Pass Rate", String.format("%.1f%%", s.avgApPassRate()), "Avg across all exams", "#1b5e20"),
-                statCard("IBC Certifications", String.valueOf(s.ibcPassedCount()), "Industry-Based Certs passed", "#4a148c")
+                        Math.round((s.atRiskCount() * 100.0) / s.totalStudents()) + "% of enrollment", "#b71c1c",
+                        "▼ 6.1% vs last semester", true),
+                statCard("AP Pass Rate", String.format("%.1f%%", s.avgApPassRate()), "Avg across all exams", "#1b5e20",
+                        "▲ 2.8% vs last year", true),
+                statCard("IBC Certifications", String.valueOf(s.ibcPassedCount()), "Industry-Based Certs passed", "#4a148c",
+                        "▲ 11.5% vs last semester", true)
         );
         return row;
     }
 
-    private Div statCard(String title, String value, String subtitle, String accentColor) {
+    private Div statCard(String title, String value, String subtitle, String accentColor, String deltaText, boolean deltaPositive) {
         var card = new Div();
         card.getStyle()
-                .set("background", "white")
+                .set("background", "var(--lumo-base-color)")
+                .set("border", "1px solid var(--lumo-contrast-10pct)")
                 .set("border-left", "4px solid " + accentColor)
-                .set("border-radius", "8px")
+                .set("border-radius", "var(--lumo-border-radius-l)")
                 .set("padding", "20px 24px")
-                .set("box-shadow", "0 2px 8px rgba(0,0,0,0.08)")
+                .set("box-shadow", "var(--lumo-box-shadow-s)")
                 .set("flex", "1")
                 .set("min-width", "180px");
 
         var titleEl = new Span(title);
-        titleEl.getStyle().set("font-size", "12px").set("color", "#666").set("text-transform", "uppercase").set("letter-spacing", "0.5px");
+        titleEl.getStyle().set("font-size", "12px").set("color", "var(--lumo-secondary-text-color)").set("text-transform", "uppercase").set("letter-spacing", "0.5px");
 
         var valueEl = new H3(value);
         valueEl.getStyle().set("margin", "6px 0 4px").set("font-size", "28px").set("color", accentColor);
 
         var subtitleEl = new Span(subtitle);
-        subtitleEl.getStyle().set("font-size", "12px").set("color", "#999");
+        subtitleEl.getStyle().set("font-size", "12px").set("color", "var(--lumo-tertiary-text-color)");
 
-        card.add(new Div(titleEl), valueEl, new Div(subtitleEl));
+        var deltaEl = new Span(deltaText);
+        deltaEl.getStyle()
+                .set("font-size", "12px")
+                .set("font-weight", "600")
+                .set("color", deltaPositive ? "#2e7d32" : "#c62828")
+                .set("display", "block")
+                .set("margin-top", "8px");
+
+        card.add(new Div(titleEl), valueEl, new Div(subtitleEl), deltaEl);
         return card;
     }
 
@@ -112,11 +130,12 @@ public class DashboardView extends VerticalLayout {
     private Div riskCard(String level, long count, double pct, String color, String icon) {
         var card = new Div();
         card.getStyle()
-                .set("background", "white")
+                .set("background", "var(--lumo-base-color)")
+                .set("border", "1px solid var(--lumo-contrast-10pct)")
                 .set("border-top", "4px solid " + color)
-                .set("border-radius", "8px")
+                .set("border-radius", "var(--lumo-border-radius-l)")
                 .set("padding", "16px 20px")
-                .set("box-shadow", "0 2px 8px rgba(0,0,0,0.06)")
+                .set("box-shadow", "var(--lumo-box-shadow-xs)")
                 .set("flex", "1")
                 .set("text-align", "center");
 
@@ -127,7 +146,7 @@ public class DashboardView extends VerticalLayout {
         var countEl = new Div(new Span(String.valueOf(count)));
         countEl.getStyle().set("font-size", "22px").set("font-weight", "bold");
         var pctEl = new Div(new Span(String.format("%.1f%%", pct)));
-        pctEl.getStyle().set("font-size", "12px").set("color", "#888");
+        pctEl.getStyle().set("font-size", "12px").set("color", "var(--lumo-tertiary-text-color)");
 
         card.add(iconEl, levelEl, countEl, pctEl);
         return card;
@@ -136,15 +155,15 @@ public class DashboardView extends VerticalLayout {
     private Div campusAtRiskBadge(String campus, long count) {
         var badge = new Div();
         badge.getStyle()
-                .set("background", "#fff3e0")
-                .set("border", "1px solid #ff9800")
-                .set("border-radius", "8px")
+                .set("background", "var(--lumo-warning-color-10pct)")
+                .set("border", "1px solid var(--lumo-warning-color)")
+                .set("border-radius", "var(--lumo-border-radius-l)")
                 .set("padding", "12px 20px")
                 .set("flex", "1");
         var name = new Span(campus);
         name.getStyle().set("font-weight", "600").set("display", "block");
         var cnt = new Span(count + " at-risk students");
-        cnt.getStyle().set("color", "#e65100").set("font-size", "13px");
+        cnt.getStyle().set("color", "var(--lumo-warning-text-color)").set("font-size", "13px");
         badge.add(name, cnt);
         return badge;
     }
@@ -178,7 +197,7 @@ public class DashboardView extends VerticalLayout {
                     .set("width", (Math.min(Long.parseLong(p[1]) / 30, 500)) + "px");
 
             var count = new Span(p[1] + " records");
-            count.getStyle().set("margin-left", "10px").set("font-size", "12px").set("color", "#555");
+            count.getStyle().set("margin-left", "10px").set("font-size", "12px").set("color", "var(--lumo-secondary-text-color)");
 
             row.add(label, bar, count);
             section.add(row);

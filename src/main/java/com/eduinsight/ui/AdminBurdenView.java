@@ -108,9 +108,9 @@ public class AdminBurdenView extends VerticalLayout {
     private Div comparisonCard(String title, String[][] steps, String total, String color, boolean isGood) {
         var card = new Div();
         card.getStyle()
-                .set("background", "white")
-                .set("border", "2px solid " + (isGood ? "#2e7d32" : "#e0e0e0"))
-                .set("border-radius", "10px")
+                .set("background", "var(--lumo-base-color)")
+                .set("border", "2px solid " + (isGood ? "#2e7d32" : "var(--lumo-contrast-10pct)"))
+                .set("border-radius", "var(--lumo-border-radius-l)")
                 .set("padding", "20px 24px")
                 .set("flex", "1");
 
@@ -121,7 +121,7 @@ public class AdminBurdenView extends VerticalLayout {
         for (String[] step : steps) {
             var stepRow = new Div();
             stepRow.getStyle().set("display", "flex").set("justify-content", "space-between")
-                    .set("padding", "5px 0").set("border-bottom", "1px solid #f5f5f5").set("font-size", "13px");
+                    .set("padding", "5px 0").set("border-bottom", "1px solid var(--lumo-contrast-10pct)").set("font-size", "13px");
             var taskEl = new Span(step[0]);
             var timeEl = new Span(step[1]);
             timeEl.getStyle().set("color", isGood ? "#2e7d32" : "#c62828").set("font-weight", "bold");
@@ -161,14 +161,15 @@ public class AdminBurdenView extends VerticalLayout {
     private Div projectionCard(String label, String value, String color) {
         var card = new Div();
         card.getStyle()
-                .set("background", "white")
+                .set("background", "var(--lumo-base-color)")
+                .set("border", "1px solid var(--lumo-contrast-10pct)")
                 .set("border-left", "4px solid " + color)
-                .set("border-radius", "8px")
+                .set("border-radius", "var(--lumo-border-radius-l)")
                 .set("padding", "16px 20px")
-                .set("box-shadow", "0 2px 8px rgba(0,0,0,0.07)")
+                .set("box-shadow", "var(--lumo-box-shadow-xs)")
                 .set("flex", "1");
         var labelEl = new Span(label);
-        labelEl.getStyle().set("font-size", "11px").set("color", "#888").set("text-transform", "uppercase").set("letter-spacing", "0.5px");
+        labelEl.getStyle().set("font-size", "11px").set("color", "var(--lumo-tertiary-text-color)").set("text-transform", "uppercase").set("letter-spacing", "0.5px");
         var valueEl = new H3(value);
         valueEl.getStyle().set("margin", "6px 0 0").set("color", color).set("font-size", "20px");
         card.add(new Div(labelEl), valueEl);
@@ -199,10 +200,11 @@ public class AdminBurdenView extends VerticalLayout {
     private Div impactCard(String icon, String title, String hours, String description, String color) {
         var card = new Div();
         card.getStyle()
-                .set("background", "white")
-                .set("border-radius", "10px")
+                .set("background", "var(--lumo-base-color)")
+                .set("border", "1px solid var(--lumo-contrast-10pct)")
+                .set("border-radius", "var(--lumo-border-radius-l)")
                 .set("padding", "20px 24px")
-                .set("box-shadow", "0 2px 8px rgba(0,0,0,0.07)")
+                .set("box-shadow", "var(--lumo-box-shadow-xs)")
                 .set("flex", "1")
                 .set("text-align", "center");
         var iconEl = new Span(icon);
@@ -210,9 +212,9 @@ public class AdminBurdenView extends VerticalLayout {
         var titleEl = new H4(title);
         titleEl.getStyle().set("color", color).set("margin", "10px 0 4px");
         var hoursEl = new H3(hours);
-        hoursEl.getStyle().set("margin", "0 0 8px").set("color", "#333");
+        hoursEl.getStyle().set("margin", "0 0 8px").set("color", "var(--lumo-body-text-color)");
         var desc = new Span(description);
-        desc.getStyle().set("font-size", "13px").set("color", "#888");
+        desc.getStyle().set("font-size", "13px").set("color", "var(--lumo-tertiary-text-color)");
         card.add(iconEl, titleEl, hoursEl, new Div(desc));
         return card;
     }
@@ -220,8 +222,8 @@ public class AdminBurdenView extends VerticalLayout {
     private Component buildMethodologyNote() {
         var note = new Div();
         note.getStyle()
-                .set("background", "#f8f9fa")
-                .set("border-left", "4px solid #aaa")
+                .set("background", "var(--lumo-contrast-5pct)")
+                .set("border-left", "4px solid var(--lumo-contrast-30pct)")
                 .set("border-radius", "6px")
                 .set("padding", "14px 18px")
                 .set("margin-top", "8px");
@@ -231,7 +233,7 @@ public class AdminBurdenView extends VerticalLayout {
                 "teacher feedback during early prototype testing. Calculation assumes 5 planning periods/week, 18-week semester, " +
                 "30 teachers/campus × 3 campuses = 90 teachers district-wide."
         );
-        text.getStyle().set("margin", "0").set("font-size", "12px").set("color", "#666");
+        text.getStyle().set("margin", "0").set("font-size", "12px").set("color", "var(--lumo-secondary-text-color)");
         note.add(text);
         return note;
     }

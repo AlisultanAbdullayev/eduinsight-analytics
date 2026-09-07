@@ -52,6 +52,12 @@ tasks.withType<Test> {
     }
 }
 
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    // Vaadin's dev-mode file watcher (vaadin-dev-server -> directory-watcher) uses JNA for
+    // native filesystem events; without this flag Java 24+ logs a native-access warning.
+    jvmArgs("--enable-native-access=ALL-UNNAMED")
+}
+
 vaadin {
     productionMode = false
 }
