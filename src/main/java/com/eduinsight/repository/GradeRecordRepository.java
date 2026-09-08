@@ -21,4 +21,7 @@ public interface GradeRecordRepository extends JpaRepository<GradeRecord, Long> 
 
     @Query("SELECT g FROM GradeRecord g WHERE g.course = :course")
     List<GradeRecord> findByCourse(@Param("course") String course);
+
+    @Query("SELECT COUNT(g) FROM GradeRecord g WHERE g.student.campus IN :campuses")
+    long countByCampuses(@Param("campuses") List<String> campuses);
 }

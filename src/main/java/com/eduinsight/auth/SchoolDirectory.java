@@ -23,4 +23,13 @@ public final class SchoolDirectory {
                 .filter(a -> a.username().equalsIgnoreCase(username) && a.password().equals(password))
                 .findFirst();
     }
+
+    /** Every campus belonging to {@code district}, used to scope a district-wide account's data view. */
+    public static List<String> campusesForDistrict(String district) {
+        return ACCOUNTS.stream()
+                .filter(a -> a.district().equals(district) && a.campus() != null)
+                .map(SchoolAccount::campus)
+                .distinct()
+                .toList();
+    }
 }

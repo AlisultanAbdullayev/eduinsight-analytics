@@ -22,12 +22,34 @@ public class DashboardView extends VerticalLayout {
         addClassNames(LumoUtility.Padding.LARGE);
         setWidthFull();
 
-        DashboardSummary summary = statsService.buildSummary();
+        SchoolAccount account = SchoolAccount.current();
+        DashboardSummary summary = statsService.buildSummary(account);
 
         add(pageHeader());
         add(buildStatCards(summary));
-        add(buildRiskBreakdown(summary));
-        add(buildPlatformIngestionBar(summary));
+        if (summary.totalStudents() == 0) {
+            add(noDataNotice(account));
+        } else {
+            add(buildRiskBreakdown(summary));
+            add(buildPlatformIngestionBar(summary));
+        }
+    }
+
+    private Component noDataNotice(SchoolAccount account) {
+        String school = account != null ? account.schoolName() : "This school";
+        var notice = new Div();
+        notice.getStyle()
+                .set("background", "var(--lumo-contrast-5pct)")
+                .set("border-left", "4px solid var(--lumo-contrast-30pct)")
+                .set("border-radius", "6px")
+                .set("padding", "16px 20px")
+                .set("margin-top", "8px");
+        var text = new Paragraph(
+                school + " has no student records connected yet from Schoology, Skyward, CodeHS, or GMETRIX. " +
+                "This dashboard populates automatically as soon as those platforms are ingesting data for this school.");
+        text.getStyle().set("margin", "0").set("font-size", "13px").set("color", "var(--lumo-secondary-text-color)");
+        notice.add(text);
+        return notice;
     }
 
     private Component pageHeader() {
@@ -45,14 +67,17 @@ public class DashboardView extends VerticalLayout {
     }
 
     private Component buildStatCards(DashboardSummary s) {
+        String campusLabel = s.campusCount() + (s.campusCount() == 1 ? " Campus" : " Campuses");
+        long atRiskPct = s.totalStudents() > 0 ? Math.round((s.atRiskCount() * 100.0) / s.totalStudents()) : 0;
+
         var row = new HorizontalLayout();
         row.setWidthFull();
         row.setSpacing(true);
         row.add(
-                statCard("Total Students", String.valueOf(s.totalStudents()), "3 Harmony Campuses", "#1565c0",
+                statCard("Total Students", String.valueOf(s.totalStudents()), campusLabel, "#1565c0",
                         "▲ 3.4% vs last semester", true),
                 statCard("At-Risk Students", String.valueOf(s.atRiskCount()),
-                        Math.round((s.atRiskCount() * 100.0) / s.totalStudents()) + "% of enrollment", "#b71c1c",
+                        atRiskPct + "% of enrollment", "#b71c1c",
                         "▼ 6.1% vs last semester", true),
                 statCard("AP Pass Rate", String.format("%.1f%%", s.avgApPassRate()), "Avg across all exams", "#1b5e20",
                         "▲ 2.8% vs last year", true),

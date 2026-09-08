@@ -1,5 +1,8 @@
 package com.eduinsight.ui;
 
+import com.eduinsight.integration.DatabricksAnalyticsService;
+import com.eduinsight.integration.IntegrationStatus;
+import com.eduinsight.integration.SnowflakeWarehouseService;
 import com.eduinsight.repository.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.*;
@@ -13,17 +16,30 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 @Route(value = "data-sources", layout = MainLayout.class)
 public class DataSourcesView extends VerticalLayout {
 
+    /**
+     * LIVE: real DB-backed data, wired up and running in this demo.
+     * NOT_CONNECTED: real integration code exists (JDBC client, config keys) but
+     * isn't pointed at a live account/workspace in this demo.
+     * ROADMAP: purely illustrative — no client, dependency, or credential exists for it at all.
+     */
+    private enum IntegrationState { LIVE, NOT_CONNECTED, ROADMAP }
+
+    private final IntegrationStatus snowflakeStatus;
+    private final IntegrationStatus databricksStatus;
+
     public DataSourcesView(GradeRecordRepository gradeRepo,
                            AttendanceRecordRepository attendanceRepo,
                            CodingProgressRepository codingRepo,
-                           AssessmentScoreRepository assessmentRepo,
-                           StudentRepository studentRepo) {
+                           SnowflakeWarehouseService snowflakeService,
+                           DatabricksAnalyticsService databricksService) {
         addClassNames(LumoUtility.Padding.LARGE);
         setWidthFull();
 
+        this.snowflakeStatus = snowflakeService.checkStatus();
+        this.databricksStatus = databricksService.checkStatus();
+
         add(pageHeader());
-        add(buildPlatformCards(gradeRepo.count(), attendanceRepo.count(),
-                codingRepo.count(), assessmentRepo.count(), studentRepo.count()));
+        add(buildPlatformCards(gradeRepo.count(), attendanceRepo.count(), codingRepo.count()));
         add(buildAnalyticsLayerSection());
         add(buildArchitectureSection());
         add(buildStatusTable());
@@ -32,8 +48,9 @@ public class DataSourcesView extends VerticalLayout {
     private Component pageHeader() {
         var title = UiUtils.pageTitle("Connected Data Sources");
         var subtitle = new Paragraph(
-                "EduInsight acts as the FERPA-compliant interoperability layer. No data is stored permanently — " +
-                "all records are ingested via REST APIs from existing district systems, processed, and surfaced to teachers in real time."
+                "EduInsight acts as the FERPA-compliant interoperability layer. Schoology, Skyward, CodeHS, and " +
+                "GMETRIX are live in this demo, ingested via REST APIs from seeded district data. Every other card " +
+                "below is either a real-but-disabled integration or an illustrative roadmap item — see each card's status."
         );
         subtitle.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.Margin.Top.NONE);
         var header = new VerticalLayout(title, subtitle);
@@ -42,7 +59,7 @@ public class DataSourcesView extends VerticalLayout {
         return header;
     }
 
-    private Component buildPlatformCards(long grades, long attendance, long coding, long assessments, long students) {
+    private Component buildPlatformCards(long grades, long attendance, long coding) {
         var row = new HorizontalLayout();
         row.setWidthFull();
         row.setSpacing(true);
@@ -50,33 +67,34 @@ public class DataSourcesView extends VerticalLayout {
 
         row.add(platformCard("Schoology", "Learning Management System",
                 "Grades, assignments, course enrollment, submission timestamps",
-                grades + " records ingested", "#1565c0", "LMS", "Today 08:32 AM"));
+                grades + " records ingested", "#1565c0", "LMS", "Today 08:32 AM", IntegrationState.LIVE));
         row.add(platformCard("Skyward", "Student Information System",
                 "Attendance, enrollment, demographics, scheduling",
-                attendance + " records ingested", "#6a1b9a", "SIS", "Today 08:30 AM"));
-        row.add(platformCard("Google Classroom", "Learning Management System",
-                "Assignments, announcements, class rosters, submission status",
-                "1,240 records ingested", "#00897b", "LMS", "Today 08:31 AM"));
+                attendance + " records ingested", "#6a1b9a", "SIS", "Today 08:30 AM", IntegrationState.LIVE));
         row.add(platformCard("CodeHS", "Coding Platform",
                 "Python, Java, Web Dev modules, point progress, completion rates",
-                (coding / 2) + " records ingested", "#00695c", "EdTech", "Today 07:55 AM"));
+                (coding / 2) + " records ingested", "#00695c", "EdTech", "Today 07:55 AM", IntegrationState.LIVE));
         row.add(platformCard("GMETRIX", "IBC Certification Platform",
                 "IC3, Microsoft, Adobe certifications — Industry-Based Cert tracking",
-                (coding / 2) + " records ingested", "#e65100", "IBC", "Today 07:55 AM"));
+                (coding / 2) + " records ingested", "#e65100", "IBC", "Today 07:55 AM", IntegrationState.LIVE));
+        row.add(platformCard("Google Classroom", "Learning Management System",
+                "Assignments, announcements, class rosters, submission status",
+                "No live connection — illustrative only", "#00897b", "LMS", null, IntegrationState.ROADMAP));
         row.add(platformCard("Codeium", "AI Coding Assistant",
                 "IDE activity, AI-assisted completions, coding session duration",
-                "486 records ingested", "#3f51b5", "EdTech", "Today 07:50 AM"));
+                "No live connection — illustrative only", "#3f51b5", "EdTech", null, IntegrationState.ROADMAP));
         row.add(platformCard("Harmony ClassLink", "SSO / Identity Portal",
                 "Single sign-on identity, roster provisioning — powers EduInsight login",
-                students + " identities synced", "#5e35b1", "SSO", "Today 06:00 AM"));
+                "No live connection — illustrative only", "#5e35b1", "SSO", null, IntegrationState.ROADMAP));
         row.add(platformCard("Edres", "Online Education Platform",
                 "Virtual coursework, digital credit recovery, online course completions",
-                "312 records ingested", "#c2185b", "EdTech", "Today 07:45 AM"));
+                "No live connection — illustrative only", "#c2185b", "EdTech", null, IntegrationState.ROADMAP));
 
         return row;
     }
 
-    private Div platformCard(String name, String type, String description, String recordSummary, String color, String tag, String lastSync) {
+    private Div platformCard(String name, String type, String description, String metric, String color, String tag,
+                              String lastSync, IntegrationState state) {
         var card = new Div();
         card.getStyle()
                 .set("background", "var(--lumo-base-color)")
@@ -102,17 +120,40 @@ public class DataSourcesView extends VerticalLayout {
         var descEl = new Paragraph(description);
         descEl.getStyle().set("font-size", "13px").set("color", "var(--lumo-secondary-text-color)").set("margin", "8px 0 12px");
 
-        var status = new Span("● Active");
-        status.getStyle().set("color", "#2e7d32").set("font-size", "13px").set("font-weight", "bold");
+        var status = statusBadge(state);
 
-        var recordCount = new Span(recordSummary);
-        recordCount.getStyle().set("font-size", "12px").set("color", "var(--lumo-tertiary-text-color)").set("margin-left", "12px");
+        var metricEl = new Span(metric);
+        metricEl.getStyle().set("font-size", "12px").set("color", "var(--lumo-tertiary-text-color)");
+        if (state == IntegrationState.LIVE) {
+            metricEl.getStyle().set("margin-left", "12px");
+        } else {
+            metricEl.getStyle().set("display", "block").set("margin-top", "4px");
+        }
 
-        var sync = new Span("Last sync: " + lastSync);
-        sync.getStyle().set("font-size", "11px").set("color", "var(--lumo-tertiary-text-color)").set("display", "block").set("margin-top", "6px");
+        card.add(tagSpan, nameEl, typeEl, descEl, status, metricEl);
 
-        card.add(tagSpan, nameEl, typeEl, descEl, status, recordCount, sync);
+        if (lastSync != null) {
+            var sync = new Span("Last sync: " + lastSync);
+            sync.getStyle().set("font-size", "11px").set("color", "var(--lumo-tertiary-text-color)").set("display", "block").set("margin-top", "6px");
+            card.add(sync);
+        }
         return card;
+    }
+
+    private Span statusBadge(IntegrationState state) {
+        String label = switch (state) {
+            case LIVE -> "● Active";
+            case NOT_CONNECTED -> "○ Not Connected";
+            case ROADMAP -> "○ Roadmap";
+        };
+        String color = switch (state) {
+            case LIVE -> "#2e7d32";
+            case NOT_CONNECTED -> "#e65100";
+            case ROADMAP -> "var(--lumo-tertiary-text-color)";
+        };
+        var status = new Span(label);
+        status.getStyle().set("color", color).set("font-size", "13px").set("font-weight", "bold");
+        return status;
     }
 
     private Component buildAnalyticsLayerSection() {
@@ -121,8 +162,9 @@ public class DataSourcesView extends VerticalLayout {
         section.add(UiUtils.sectionTitle("AI & Data Analytics Layer"));
 
         var subtitle = new Paragraph(
-                "Downstream of ingestion, EduInsight warehouses and models the unified dataset to power multi-year " +
-                "trend analysis and the predictive at-risk engine.");
+                "Downstream of ingestion, EduInsight can warehouse and model the unified dataset via real (optional) " +
+                "JDBC clients to Snowflake and Databricks — disabled in this demo since no live warehouse or workspace " +
+                "is provisioned. Configure eduinsight.integrations.snowflake.* / .databricks.* to turn them on.");
         subtitle.addClassNames(LumoUtility.TextColor.SECONDARY, LumoUtility.Margin.Top.NONE);
 
         var row = new HorizontalLayout();
@@ -132,10 +174,12 @@ public class DataSourcesView extends VerticalLayout {
 
         row.add(platformCard("Snowflake", "Cloud Data Warehouse",
                 "Centralized, historical warehouse for multi-year trend analysis and district reporting",
-                "2.1M records warehoused", "#29b5e8", "Warehouse", "Today 09:00 AM"));
+                snowflakeStatus.detail(), "#29b5e8", "Warehouse", null,
+                snowflakeStatus.connected() ? IntegrationState.LIVE : IntegrationState.NOT_CONNECTED));
         row.add(platformCard("Databricks", "AI / ML Analytics Platform",
                 "Trains and serves the predictive at-risk model and AI-generated insight summaries",
-                "14 models in production", "#ff3621", "AI/ML", "Today 05:30 AM"));
+                databricksStatus.detail(), "#ff3621", "AI/ML", null,
+                databricksStatus.connected() ? IntegrationState.LIVE : IntegrationState.NOT_CONNECTED));
 
         section.add(subtitle, row);
         return section;
@@ -159,16 +203,16 @@ public class DataSourcesView extends VerticalLayout {
         String arch = """
                 [Schoology API]      ──┐
                 [Skyward API]        ──┤
-                [Google Classroom]   ──┤──► [Spring Boot REST Layer] ──► [Data Ingestion]
-                [CodeHS / GMETRIX]   ──┤                                        │
-                [Codeium API]        ──┤                                        ▼
-                [Harmony ClassLink]  ──┤                              [H2 (operational store)]
-                [Edres API]          ──┘                                        │
-                                                                                 ▼
-                                                                   [Snowflake Data Warehouse]
+                [CodeHS / GMETRIX]   ──┤──► [Spring Boot REST Layer] ──► [Data Ingestion]
                                                                                  │
                                                                                  ▼
-                                                                [Databricks AI / ML Analytics]
+                                                                   [H2 (operational store)]
+                                                                                 │
+                                                                                 ▼
+                                                       [Snowflake Data Warehouse]  (optional, disabled)
+                                                                                 │
+                                                                                 ▼
+                                                    [Databricks AI / ML Analytics]  (optional, disabled)
                                                                                  │
                                                                                  ▼
                                                                      [At-Risk Analysis Engine]
@@ -190,14 +234,14 @@ public class DataSourcesView extends VerticalLayout {
         String[][] rows = {
                 {"Schoology", "REST API v3", "OAuth 2.0", "Active", "Grades, Assignments, Courses"},
                 {"Skyward", "SOAP/REST API", "API Key", "Active", "Attendance, Enrollment, SIS"},
-                {"Google Classroom", "REST API v1", "OAuth 2.0", "Active", "Assignments, Announcements, Rosters"},
                 {"CodeHS", "REST API", "Bearer Token", "Active", "Module progress, Points"},
                 {"GMETRIX", "REST API", "API Key", "Active", "IBC scores, Certification status"},
-                {"Codeium", "REST API", "API Key", "Active", "IDE activity, AI completion metrics"},
-                {"Harmony ClassLink", "REST API", "SSO/SAML", "Active", "SSO identity layer, roster provisioning"},
-                {"Edres", "REST API", "API Key", "Active", "Virtual coursework, credit recovery completions"},
-                {"Snowflake", "JDBC / Snowpipe", "Key Pair Auth", "Active", "Warehoused historical data, district reporting"},
-                {"Databricks", "REST API / MLflow", "OAuth 2.0", "Active", "At-risk model training, AI insight generation"}
+                {"Google Classroom", "REST API v1", "OAuth 2.0", "Roadmap", "Assignments, Announcements, Rosters"},
+                {"Codeium", "REST API", "API Key", "Roadmap", "IDE activity, AI completion metrics"},
+                {"Harmony ClassLink", "REST API", "SSO/SAML", "Roadmap", "SSO identity layer, roster provisioning"},
+                {"Edres", "REST API", "API Key", "Roadmap", "Virtual coursework, credit recovery completions"},
+                {"Snowflake", "JDBC / Snowpipe", "Key Pair Auth", snowflakeStatus.connected() ? "Active" : "Not Connected", "Warehoused historical data, district reporting"},
+                {"Databricks", "REST API / MLflow", "OAuth 2.0", databricksStatus.connected() ? "Active" : "Not Connected", "At-risk model training, AI insight generation"}
         };
 
         var table = new Div();
@@ -229,8 +273,12 @@ public class DataSourcesView extends VerticalLayout {
             cell.getStyle().set("padding", "10px 14px").set("width", widths[i])
                     .set("font-size", "13px").set("color", isHeader ? "var(--lumo-secondary-text-color)" : "var(--lumo-body-text-color)");
             if (!isHeader && i == 3) {
-                boolean active = cols[3].startsWith("Active");
-                cell.getStyle().set("color", active ? "#2e7d32" : "#e65100").set("font-weight", "bold");
+                String colorForStatus = switch (cols[3]) {
+                    case "Active" -> "#2e7d32";
+                    case "Not Connected" -> "#e65100";
+                    default -> "var(--lumo-tertiary-text-color)";
+                };
+                cell.getStyle().set("color", colorForStatus).set("font-weight", "bold");
             }
             cell.add(new Span(cols[i]));
             row.add(cell);

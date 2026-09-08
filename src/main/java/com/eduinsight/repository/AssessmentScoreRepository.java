@@ -13,12 +13,12 @@ import java.util.List;
 public interface AssessmentScoreRepository extends JpaRepository<AssessmentScore, Long> {
     List<AssessmentScore> findByStudent(Student student);
 
-    @Query("SELECT DISTINCT a.examName FROM AssessmentScore a")
-    List<String> findDistinctExamNames();
+    @Query("SELECT a FROM AssessmentScore a WHERE a.student.campus IN :campuses")
+    List<AssessmentScore> findByCampuses(@Param("campuses") List<String> campuses);
 
-    @Query("SELECT a FROM AssessmentScore a WHERE a.examName = :examName")
-    List<AssessmentScore> findByExamName(@Param("examName") String examName);
+    @Query("SELECT DISTINCT a.examName FROM AssessmentScore a WHERE a.student.campus IN :campuses")
+    List<String> findDistinctExamNamesByCampuses(@Param("campuses") List<String> campuses);
 
-    @Query("SELECT a FROM AssessmentScore a WHERE a.student.campus = :campus")
-    List<AssessmentScore> findByCampus(@Param("campus") String campus);
+    @Query("SELECT a FROM AssessmentScore a WHERE a.examName = :examName AND a.student.campus IN :campuses")
+    List<AssessmentScore> findByExamNameAndCampuses(@Param("examName") String examName, @Param("campuses") List<String> campuses);
 }

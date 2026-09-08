@@ -1,6 +1,8 @@
 package com.eduinsight.service;
 
+import com.eduinsight.auth.SchoolAccount;
 import com.eduinsight.model.AssessmentScore;
+import com.eduinsight.model.Student;
 import com.eduinsight.repository.*;
 import com.eduinsight.service.AtRiskAnalysisService.RiskLevel;
 import com.eduinsight.service.AtRiskAnalysisService.StudentRiskProfile;
@@ -35,7 +37,8 @@ public class DashboardStatsService {
             long totalCodingRecords,
             long totalAssessmentScores,
             Map<RiskLevel, Long> riskDistribution,
-            Map<String, Long> atRiskByCampus
+            Map<String, Long> atRiskByCampus,
+            int campusCount
     ) {}
 
     public record ApPassRateStats(
@@ -46,13 +49,20 @@ public class DashboardStatsService {
             Map<String, Double> passByCampus
     ) {}
 
-    public DashboardSummary buildSummary() {
-        var students = studentRepo.findAll();
+    /**
+     * Scoped to the signed-in school: a single-campus login only ever sees its
+     * own campus, a district-wide login sees every campus in its district.
+     * Tenants with no seeded data (e.g. Horizon Leadership Academy) correctly
+     * get an empty summary instead of another school's numbers.
+     */
+    public DashboardSummary buildSummary(SchoolAccount account) {
+        List<String> campuses = account != null ? account.campusScope() : List.of();
+        List<Student> students = campuses.isEmpty() ? List.of() : studentRepo.findByCampusIn(campuses);
         var profiles = riskService.analyzeAll(students);
 
         long atRisk = profiles.stream().filter(p -> p.riskLevel() != RiskLevel.OK).count();
-        double avgApPassRate = computeOverallApPassRate();
-        long ibcPassed = codingRepo.countIbcPassed();
+        double avgApPassRate = computeOverallApPassRate(campuses);
+        long ibcPassed = campuses.isEmpty() ? 0 : codingRepo.countIbcPassedByCampuses(campuses);
 
         Map<RiskLevel, Long> riskDist = profiles.stream()
                 .collect(Collectors.groupingBy(StudentRiskProfile::riskLevel, Collectors.counting()));
@@ -61,16 +71,22 @@ public class DashboardStatsService {
                 .filter(p -> p.riskLevel() != RiskLevel.OK)
                 .collect(Collectors.groupingBy(p -> p.student().getCampus(), Collectors.counting()));
 
+        long gradeCount = campuses.isEmpty() ? 0 : gradeRepo.countByCampuses(campuses);
+        long attendanceCount = campuses.isEmpty() ? 0 : attendanceRepo.countByCampuses(campuses);
+        long codingCount = campuses.isEmpty() ? 0 : codingRepo.countByCampuses(campuses);
+        long assessmentCount = campuses.isEmpty() ? 0 : assessmentRepo.findByCampuses(campuses).size();
+
         return new DashboardSummary(
                 students.size(), atRisk, avgApPassRate, ibcPassed,
-                gradeRepo.count(), attendanceRepo.count(), codingRepo.count(), assessmentRepo.count(),
-                riskDist, atRiskByCampus
+                gradeCount, attendanceCount, codingCount, assessmentCount,
+                riskDist, atRiskByCampus, campuses.size()
         );
     }
 
-    public List<ApPassRateStats> buildApPassRates() {
-        return assessmentRepo.findDistinctExamNames().stream().map(examName -> {
-            List<AssessmentScore> scores = assessmentRepo.findByExamName(examName);
+    public List<ApPassRateStats> buildApPassRates(List<String> campuses) {
+        if (campuses.isEmpty()) return List.of();
+        return assessmentRepo.findDistinctExamNamesByCampuses(campuses).stream().map(examName -> {
+            List<AssessmentScore> scores = assessmentRepo.findByExamNameAndCampuses(examName, campuses);
             long total = scores.size();
             long passing = scores.stream().filter(AssessmentScore::isPassing).count();
             double rate = total > 0 ? (passing * 100.0) / total : 0.0;
@@ -87,10 +103,11 @@ public class DashboardStatsService {
         }).toList();
     }
 
-    private double computeOverallApPassRate() {
-        var all = assessmentRepo.findAll();
-        if (all.isEmpty()) return 0.0;
-        long passing = all.stream().filter(AssessmentScore::isPassing).count();
-        return (passing * 100.0) / all.size();
+    private double computeOverallApPassRate(List<String> campuses) {
+        if (campuses.isEmpty()) return 0.0;
+        var scoped = assessmentRepo.findByCampuses(campuses);
+        if (scoped.isEmpty()) return 0.0;
+        long passing = scoped.stream().filter(AssessmentScore::isPassing).count();
+        return (passing * 100.0) / scoped.size();
     }
 }
