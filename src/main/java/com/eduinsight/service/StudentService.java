@@ -13,19 +13,11 @@ public class StudentService {
 
     private final StudentRepository studentRepo;
 
-    public List<Student> findAll() {
-        return studentRepo.findAll();
-    }
-
     public List<Student> findByCampus(String campus) {
         return studentRepo.findByCampus(campus);
     }
 
-    public List<String> findDistinctCampuses() {
-        return studentRepo.findAll().stream()
-                .map(Student::getCampus)
-                .distinct()
-                .sorted()
-                .toList();
+    public List<Student> findByCampuses(List<String> campuses) {
+        return campuses.isEmpty() ? List.of() : studentRepo.findByCampusIn(campuses);
     }
 }

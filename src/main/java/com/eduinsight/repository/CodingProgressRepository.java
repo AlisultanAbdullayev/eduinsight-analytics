@@ -18,4 +18,10 @@ public interface CodingProgressRepository extends JpaRepository<CodingProgress, 
 
     @Query("SELECT COUNT(c) FROM CodingProgress c WHERE c.ibcPassed = true")
     long countIbcPassed();
+
+    @Query("SELECT COUNT(c) FROM CodingProgress c WHERE c.student.campus IN :campuses")
+    long countByCampuses(@Param("campuses") List<String> campuses);
+
+    @Query("SELECT COUNT(c) FROM CodingProgress c WHERE c.ibcPassed = true AND c.student.campus IN :campuses")
+    long countIbcPassedByCampuses(@Param("campuses") List<String> campuses);
 }

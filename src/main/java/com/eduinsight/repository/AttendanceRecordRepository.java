@@ -18,4 +18,7 @@ public interface AttendanceRecordRepository extends JpaRepository<AttendanceReco
 
     @Query("SELECT COUNT(a) FROM AttendanceRecord a WHERE a.student = :student")
     long countTotalByStudent(@Param("student") Student student);
+
+    @Query("SELECT COUNT(a) FROM AttendanceRecord a WHERE a.student.campus IN :campuses")
+    long countByCampuses(@Param("campuses") List<String> campuses);
 }

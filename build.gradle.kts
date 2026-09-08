@@ -41,6 +41,11 @@ dependencies {
     developmentOnly("com.vaadin:vaadin-dev")
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("com.h2database:h2")
+    // Snowflake data warehouse and Databricks AI/ML analytics: real JDBC clients backing
+    // com.eduinsight.integration, disabled by default (see application.properties) since
+    // this demo ships with no live warehouse/workspace credentials.
+    runtimeOnly("net.snowflake:snowflake-jdbc:3.13.14")
+    runtimeOnly("com.databricks:databricks-jdbc:3.4.2")
     annotationProcessor("org.projectlombok:lombok")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }

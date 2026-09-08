@@ -1,5 +1,6 @@
 package com.eduinsight.ui;
 
+import com.eduinsight.auth.SchoolAccount;
 import com.eduinsight.model.Student;
 import com.eduinsight.service.AtRiskAnalysisService;
 import com.eduinsight.service.AtRiskAnalysisService.RiskLevel;
@@ -25,12 +26,15 @@ public class AtRiskView extends VerticalLayout {
 
     private final StudentService studentService;
     private final AtRiskAnalysisService riskService;
+    private final List<String> campusScope;
     private final Grid<StudentRiskProfile> grid = new Grid<>();
     private List<StudentRiskProfile> allProfiles;
 
     public AtRiskView(StudentService studentService, AtRiskAnalysisService riskService) {
         this.studentService = studentService;
         this.riskService = riskService;
+        SchoolAccount account = SchoolAccount.current();
+        this.campusScope = account != null ? account.campusScope() : List.of();
         addClassNames(LumoUtility.Padding.LARGE);
         setSizeFull();
 
@@ -54,7 +58,7 @@ public class AtRiskView extends VerticalLayout {
 
     private Component buildToolbar() {
         ComboBox<String> campusFilter = new ComboBox<>("Filter by Campus");
-        campusFilter.setItems(studentService.findDistinctCampuses());
+        campusFilter.setItems(campusScope);
         campusFilter.setClearButtonVisible(true);
         campusFilter.setWidth("250px");
         campusFilter.addValueChangeListener(e -> loadData(e.getValue()));
@@ -184,7 +188,7 @@ public class AtRiskView extends VerticalLayout {
 
     private void loadData(String campus) {
         List<Student> students = (campus == null || campus.isEmpty())
-                ? studentService.findAll()
+                ? studentService.findByCampuses(campusScope)
                 : studentService.findByCampus(campus);
         allProfiles = riskService.analyzeAll(students);
         grid.setItems(allProfiles);

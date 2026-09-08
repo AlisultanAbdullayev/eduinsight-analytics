@@ -10,7 +10,7 @@ The platform is multi-school by design: each school or district signs in with it
 |-------|-----------|
 | Backend | Java 25, Spring Boot 4.0.6 |
 | Frontend | Vaadin 25.1.1 (custom Lumo theme, adaptive light/dark mode) |
-| Database | H2 in-memory (demo) → Snowflake (production) |
+| Database | H2 in-memory (demo) → Snowflake (production, optional JDBC client included and disabled by default — see [Demo Data](#demo-data)) |
 | Build | Gradle 9.4.1 |
 
 ## Running Locally
@@ -50,10 +50,10 @@ The same dashboard, branded two different ways depending on who's signed in:
 
 | View | Route | Description |
 |------|-------|-------------|
-| Dashboard | `/dashboard` (alias `/`) | Overview: student counts, risk distribution, AP rates, ingestion stats, KPI trend deltas |
-| At-Risk Students | `/at-risk` | Filterable grid with early-warning flags from all connected platforms |
-| AP Pass Rates | `/ap-rates` | Exam pass rates per course and campus |
-| Data Sources | `/data-sources` | Platform integration cards, AI/data-analytics layer, architecture diagram, status table |
+| Dashboard | `/dashboard` (alias `/`) | Overview: student counts, risk distribution, AP rates, ingestion stats, KPI trend deltas — scoped to the signed-in school's own campus(es) |
+| At-Risk Students | `/at-risk` | Filterable grid with early-warning flags from all connected platforms, scoped to the signed-in school's own campus(es) |
+| AP Pass Rates | `/ap-rates` | Exam pass rates per course and campus, scoped to the signed-in school's own campus(es) |
+| Data Sources | `/data-sources` | Platform integration cards, AI/data-analytics layer, architecture diagram, status table — each platform's badge reflects its real state: Active (live, DB-backed), Not Connected (real client, disabled), or Roadmap (illustrative only) |
 | School Info | `/school-info` | Directory of every participating school, regardless of network — contact details and enrollment |
 | Admin Burden | `/admin-burden` | Time-saved metrics: 42 min → 3 min per planning period |
 
@@ -89,12 +89,13 @@ Every onboarded school shows up here side by side, whichever network it belongs 
 
 ## Demo Data
 
-- **60 students** across 3 Harmony campuses (Discovery, Science, Innovation). Horizon Leadership Academy has no seeded student rows — it demonstrates the login/branding flow with a fixed demo enrollment figure instead, showing the platform doesn't require every tenant to share the same data pipeline.
+- **60 students** across 3 Harmony campuses (Discovery, Science, Innovation). Horizon Leadership Academy has no seeded student rows — every tenant-facing view (Dashboard, At-Risk, AP Pass Rates) is scoped to the signed-in school's own campus(es), so Horizon correctly sees an empty/zero state there rather than another school's numbers; School Info alone shows it a fixed demo enrollment figure, to demonstrate the login/branding flow without implying a live data pipeline exists for it.
 - **Grade records** from Schoology (4 AP courses, 10 records/student)
 - **Attendance records** from Skyward (50+ records/student, realistic present/absent/tardy)
 - **Coding progress** from CodeHS and GMETRIX (IBC certification tracking)
 - **AP assessment scores** for 11th/12th graders (realistic 1–5 distribution)
-- All other integrations shown on the Data Sources page (Google Classroom, Codeium, Harmony ClassLink, Edres, Snowflake, Databricks) are illustrative/mock — there are no real API credentials or live connections behind them.
+- Google Classroom, Codeium, Harmony ClassLink, and Edres, shown on the Data Sources page, are illustrative/mock — there is no client, dependency, or credential behind them, and the page's status badges say "Roadmap" rather than "Active" to reflect that.
+- Snowflake and Databricks have real, optional JDBC integration code (`com.eduinsight.integration`), but ship **disabled** since this demo has no live warehouse/workspace to point at — the Data Sources page queries their actual connection state at runtime and shows "Not Connected" until `eduinsight.integrations.snowflake.enabled` / `.databricks.enabled` (and the matching credentials) are set in `application.properties`.
 
 ## At-Risk Scoring
 

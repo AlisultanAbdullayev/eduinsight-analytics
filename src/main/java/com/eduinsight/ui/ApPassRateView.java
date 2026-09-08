@@ -1,5 +1,6 @@
 package com.eduinsight.ui;
 
+import com.eduinsight.auth.SchoolAccount;
 import com.eduinsight.service.DashboardStatsService;
 import com.eduinsight.service.DashboardStatsService.ApPassRateStats;
 import com.vaadin.flow.component.Component;
@@ -23,12 +24,33 @@ public class ApPassRateView extends VerticalLayout {
         addClassNames(LumoUtility.Padding.LARGE);
         setWidthFull();
 
-        List<ApPassRateStats> stats = statsService.buildApPassRates();
+        SchoolAccount account = SchoolAccount.current();
+        List<String> campuses = account != null ? account.campusScope() : List.of();
+        List<ApPassRateStats> stats = statsService.buildApPassRates(campuses);
 
         add(pageHeader());
-        add(buildSummaryCards(stats));
-        add(buildRateGrid(stats));
-        add(buildCampusBreakdown(stats));
+        if (stats.isEmpty()) {
+            add(noDataNotice(account));
+        } else {
+            add(buildSummaryCards(stats));
+            add(buildRateGrid(stats));
+            add(buildCampusBreakdown(stats, campuses));
+        }
+    }
+
+    private Component noDataNotice(SchoolAccount account) {
+        String school = account != null ? account.schoolName() : "This school";
+        var notice = new Div();
+        notice.getStyle()
+                .set("background", "var(--lumo-contrast-5pct)")
+                .set("border-left", "4px solid var(--lumo-contrast-30pct)")
+                .set("border-radius", "6px")
+                .set("padding", "16px 20px")
+                .set("margin-top", "8px");
+        var text = new Paragraph(school + " has no AP assessment scores connected yet from the district AP Assessment Portal.");
+        text.getStyle().set("margin", "0").set("font-size", "13px").set("color", "var(--lumo-secondary-text-color)");
+        notice.add(text);
+        return notice;
     }
 
     private Component pageHeader() {
@@ -118,7 +140,7 @@ public class ApPassRateView extends VerticalLayout {
         return container;
     }
 
-    private Component buildCampusBreakdown(List<ApPassRateStats> stats) {
+    private Component buildCampusBreakdown(List<ApPassRateStats> stats, List<String> campuses) {
         var heading = UiUtils.sectionTitle("Pass Rate by Campus");
         var grid = new Grid<CampusRow>();
         grid.setWidthFull();
@@ -133,7 +155,6 @@ public class ApPassRateView extends VerticalLayout {
             })).setHeader(s.examName()).setWidth("220px");
         }
 
-        List<String> campuses = List.of("Harmony Discovery", "Harmony Science", "Harmony Innovation");
         grid.setItems(campuses.stream().map(CampusRow::new).toList());
 
         var section = new VerticalLayout(heading, grid);
